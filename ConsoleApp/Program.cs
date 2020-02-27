@@ -20,17 +20,75 @@ namespace ConsoleApp {
             //GetSamuraisSimpler("After Add:");
             //Console.WriteLine("Press any key");
             //Console.ReadKey();
-            QueryFilters();
+            //QueryFilters();
+            //RetrieveAndUpdateSamurai();
+            //RetrieveAndUpdateMultipleSamurais();
+            //RetrieveAndDeleteSamurai();
+            //InsertBattle();
+            QueryAndUpdateBattleDisconnected();
+        }
+
+        private static void QueryAndUpdateBattleDisconnected() {
+            // Request the info using one context
+            var battle = _context.Battles.AsNoTracking().FirstOrDefault();
+            // Modify the retrieved data
+            battle.EndDate = new DateTime(1560, 06, 30);
+            // using a brand new context to push the changes to the database
+            using (var newContextInstance = new SamuraiContext()) {
+                newContextInstance.Battles.Update(battle);
+                newContextInstance.SaveChanges();
+            }
+        }
+                     
+        // The methods below demonstrate how things work with a connected client
+        // with a single DbContext, that can remember what it is doing
+        // For a disconnected client (e.g. web, where multiple users may access the database at the same time), each request starts its own DbContext and disposes it. And you have separate ones for retrieving and updating, and the updating one has no memory of what the retrieving context did. See the method above this for a simulated example
+
+        private static void InsertBattle() {
+            _context.Battles.Add(new Battle {
+                Name="Battle of Okehazama",
+                StartDate=new DateTime(1560, 05, 01),
+                EndDate=new DateTime(1560, 06, 15)
+            });
+            _context.SaveChanges();
+        }
+                      
+        private static void RetrieveAndDeleteSamurai() {
+            // For removing an object, it works best to first retrieve it into an object
+            // Directly using the Remove method may sometimes work, but mostly not, and may have side effects, so retrieving it first is preferable
+            // If you can't make it work, consider calling a stored procedure using EF Core raw SQL feature (later in course)
+            
+            var samurai = _context.Samurais.Find(13);
+            _context.Samurais.Remove(samurai);
+            _context.SaveChanges();
+        }
+
+        private static void RetrieveAndUpdateMultipleSamurais() {
+            var samurais = _context.Samurais.Skip(1).Take(3).ToList();
+            samurais.ForEach(s => s.Name += "San");
+            _context.SaveChanges();
+        }
+
+        private static void RetrieveAndUpdateSamurai() {
+            var samurai = _context.Samurais.FirstOrDefault();
+            samurai.Name += "San";
+            _context.SaveChanges();
         }
 
         private static void QueryFilters() {
-            //var name = "Sampson";
-            //var samurais = _context.Samurais.Where(s => s.Name == name).ToList();
+            var name = "Sampson";
+            //var samurais = _context.Samurais.FirstOrDefault(s => s.Name == name);
+            //var samurai = _context.Samurais.Find(2);
+
+            var last =
+                _context.Samurais.OrderBy(s => s.Id).LastOrDefault(s => s.Name == name);
+            // LastOrDefault will only work if you first sort with the OrderBy method
+            // otherwise it will throw a runtime exception
 
             //var samurais = _context.Samurais.Where(s => EF.Functions.Like(s.Name, "J%")).ToList();
 
-            var filter = "J%";
-            var samurais = _context.Samurais.Where(s => EF.Functions.Like(s.Name, filter)).ToList();
+            //var filter = "J%";
+            //var samurais = _context.Samurais.Where(s => EF.Functions.Like(s.Name, filter)).ToList();
 
         }
 
