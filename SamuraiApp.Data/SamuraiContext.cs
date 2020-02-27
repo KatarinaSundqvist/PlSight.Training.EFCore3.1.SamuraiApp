@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SamuraiApp.Domain;
 
 namespace SamuraiApp.Data {
@@ -8,13 +9,26 @@ namespace SamuraiApp.Data {
         public DbSet<Clan> Clans { get; set; }
         public DbSet<Battle> Battles { get; set; }
 
+        public static readonly ILoggerFactory ConsoleLoggerFactory = LoggerFactory.Create(builder => {
+            builder
+                .AddFilter((category, level) =>
+                    category == DbLoggerCategory.Database.Command.Name
+                    && level == LogLevel.Information)
+                .AddConsole();
+        });
+
+
         // Hard-coded connection string. Just for demo and first looks!
         // For real software, use dependency injection
+        // The EnableSensitiveDataLogging is also only for internal use! Be careful!
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-            optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = SamuraiAppDataCore");
+            optionsBuilder
+                .UseLoggerFactory(ConsoleLoggerFactory)
+                .EnableSensitiveDataLogging()
+                .UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = SamuraiAppDataCore");
         }
-        
-        // Here we are using Fluent API to specify the las critical detail of
+
+        // Here we are using Fluent API to specify the last critical detail of
         // the many-to-many relationship between Battles and Samurais
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.Entity<SamuraiBattle>().HasKey(s => new { s.SamuraiId, s.BattleId });
