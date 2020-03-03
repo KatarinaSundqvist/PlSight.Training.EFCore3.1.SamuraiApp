@@ -12,72 +12,89 @@ namespace ConsoleApp {
         // NOT best practise, not recommended for use in real software!
 
         private static SamuraiContext _context = new SamuraiContext();
+
         static void Main(string[] args) {
-            //QuerySamuraiBattleStats();
-            //QueryUsingRawSql();
-            //QueryUsingRawSqlWithInterpolation();
-            //DANGERDANGERQueryUsingRawSqlWithInterpolation();
-            //QueryUsingFromRawSqlStoredProc();
-            //InterpolatedRawSqlQueryStoredProc();
-            ExecuteSomeRawSql();
-
+            InsertMultipleSamurais();
         }
 
-        private static void ExecuteSomeRawSql() {
-            var samuraiId = 17;
-            //// Raw. Remember to use string formatting, using a parameter!
-            //var x = _context.Database
-            //    .ExecuteSqlRaw("EXEC DeleteQuotesForSamurai {0}", samuraiId);
-            // Interpolated:
-            samuraiId = 18;
-            _context.Database
-                .ExecuteSqlInterpolated($"EXEC DeleteQuotesForSamurai {samuraiId}");
-
+        private static void InsertMultipleSamurais() {
+            //var samurai = new Samurai { Name = "Sampson" };
+            //var samurai2 = new Samurai { Name = "Tasha" };
+            //var samurai3 = new Samurai { Name = "Number3" };
+            //var samurai4 = new Samurai { Name = "Number4" };
+            var _bizdata = new BusinessDataLogic();
+            var samuraiNames = new string[] { "Sampson", "Tasha", "Number3", "Number4" };
+            var newSamuraisCreated = _bizdata.AddMultipleSamurais(samuraiNames);
         }
 
-        private static void InterpolatedRawSqlQueryStoredProc() {
-            var text = "Happy";
-            var samurais = _context.Samurais.FromSqlInterpolated(
-                $"EXEC dbo.SamuraisWhoSaidAWord {text}").ToList();
-        }
+        #region RawSQL
+        //static void Main(string[] args) {
+        //    //QuerySamuraiBattleStats();
+        //    //QueryUsingRawSql();
+        //    //QueryUsingRawSqlWithInterpolation();
+        //    //DANGERDANGERQueryUsingRawSqlWithInterpolation();
+        //    //QueryUsingFromRawSqlStoredProc();
+        //    //InterpolatedRawSqlQueryStoredProc();
+        //    ExecuteSomeRawSql();
 
-        private static void QueryUsingFromRawSqlStoredProc() {
-            var text = "Happy";
-            var samurais = _context.Samurais.FromSqlRaw(
-                "EXEC dbo.SamuraisWhoSaidAWord {0}", text).ToList();
-        }
+        //}
 
-        private static void DANGERDANGERQueryUsingRawSqlWithInterpolation() {
-            string name = "Kikuchyo";
-            var samurais = _context.Samurais
-                .FromSqlRaw($"Select * from Samurais Where Name = {name}")
-                .ToList();
-            // If you pass an interpolated string into FromSqlRaw, it will first interpolate the string, then feed it to the database
-            // Depending on how you format it, SQL might read your variable as a column name. This might lead you to add '' around it, and then you are suddenly in a situation where you have a non-parameterised query, and be vulnerable to SQL injection attack. 
-            //So don't do this! Instead, always use FromSqlInterpolated if you are interpolating strings!
-        }
+        //private static void ExecuteSomeRawSql() {
+        //    var samuraiId = 17;
+        //    //// Raw. Remember to use string formatting, using a parameter!
+        //    //var x = _context.Database
+        //    //    .ExecuteSqlRaw("EXEC DeleteQuotesForSamurai {0}", samuraiId);
+        //    // Interpolated:
+        //    samuraiId = 18;
+        //    _context.Database
+        //        .ExecuteSqlInterpolated($"EXEC DeleteQuotesForSamurai {samuraiId}");
 
-        private static void QueryUsingRawSqlWithInterpolation() {
-            string name = "Kikuchyo";
-            var samurais = _context.Samurais
-                .FromSqlInterpolated($"Select * from Samurais Where Name = {name}")
-                .ToList();
-        }
+        //}
 
-        private static void QueryUsingRawSql() {
-            // simple example
-            var samurais = _context.Samurais.FromSqlRaw("Select * from Samurais").ToList();
-        }
+        //private static void InterpolatedRawSqlQueryStoredProc() {
+        //    var text = "Happy";
+        //    var samurais = _context.Samurais.FromSqlInterpolated(
+        //        $"EXEC dbo.SamuraisWhoSaidAWord {text}").ToList();
+        //}
 
-        private static void QuerySamuraiBattleStats() {
-            //var stats = _context.SamuraiBattleStats.ToList();
-            //var firstStat = _context.SamuraiBattleStats.FirstOrDefault();
-            //var sampsonStat = _context.SamuraiBattleStats
-            //            .Where(s => s.Name == "SampsonSan").FirstOrDefault();
-            //// The query below will fail at runtime, since there is no key
-            //var findone = _context.SamuraiBattleStats.Find(2);
+        //private static void QueryUsingFromRawSqlStoredProc() {
+        //    var text = "Happy";
+        //    var samurais = _context.Samurais.FromSqlRaw(
+        //        "EXEC dbo.SamuraisWhoSaidAWord {0}", text).ToList();
+        //}
 
-        }
+        //private static void DANGERDANGERQueryUsingRawSqlWithInterpolation() {
+        //    string name = "Kikuchyo";
+        //    var samurais = _context.Samurais
+        //        .FromSqlRaw($"Select * from Samurais Where Name = {name}")
+        //        .ToList();
+        //    // If you pass an interpolated string into FromSqlRaw, it will first interpolate the string, then feed it to the database
+        //    // Depending on how you format it, SQL might read your variable as a column name. This might lead you to add '' around it, and then you are suddenly in a situation where you have a non-parameterised query, and be vulnerable to SQL injection attack. 
+        //    //So don't do this! Instead, always use FromSqlInterpolated if you are interpolating strings!
+        //}
+
+        //private static void QueryUsingRawSqlWithInterpolation() {
+        //    string name = "Kikuchyo";
+        //    var samurais = _context.Samurais
+        //        .FromSqlInterpolated($"Select * from Samurais Where Name = {name}")
+        //        .ToList();
+        //}
+
+        //private static void QueryUsingRawSql() {
+        //    // simple example
+        //    var samurais = _context.Samurais.FromSqlRaw("Select * from Samurais").ToList();
+        //}
+
+        //private static void QuerySamuraiBattleStats() {
+        //    //var stats = _context.SamuraiBattleStats.ToList();
+        //    //var firstStat = _context.SamuraiBattleStats.FirstOrDefault();
+        //    //var sampsonStat = _context.SamuraiBattleStats
+        //    //            .Where(s => s.Name == "SampsonSan").FirstOrDefault();
+        //    //// The query below will fail at runtime, since there is no key
+        //    //var findone = _context.SamuraiBattleStats.Find(2);
+
+        //} 
+        #endregion
 
         #region SimpleQueries
         //static void Main(string[] args) {
