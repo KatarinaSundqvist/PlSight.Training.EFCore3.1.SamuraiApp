@@ -18,15 +18,20 @@ namespace SamuraiApp.Data {
                 .AddConsole();
         });
 
+        // default constructor which the code we have already written depends on this and the constructor below would otherwise override this one, and we had to explicitly add it back
+        public SamuraiContext() { }
+
+        // constructor to let me pass the DbContextOptions in
+        public SamuraiContext(DbContextOptions options) : base(options) { }
 
         // Hard-coded connection string. Just for demo and first looks!
         // For real software, use dependency injection
         // The EnableSensitiveDataLogging is also only for internal use! Be careful!
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-            optionsBuilder
-                .UseLoggerFactory(ConsoleLoggerFactory)
-                .EnableSensitiveDataLogging()
-                .UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = SamuraiAppDataCore");
+            if (!optionsBuilder.IsConfigured) {
+                optionsBuilder
+                        .UseSqlServer("Server = (localdb)\\mssqllocaldb; Initial Catalog = SamuraiTestDataCore"); 
+            }
         }
 
         // Here we are using Fluent API to specify the last critical detail of
